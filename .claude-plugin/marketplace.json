@@ -1,0 +1,14 @@
+{
+  "name": "harness-sast-and-sca-plugins",
+  "owner": {
+    "name": "Harness, Inc",
+    "email": "support@qwiet.ai"
+  },
+  "plugins": [
+    {
+      "name": "harness-sast-and-sca",
+      "source": "./plugins/harness-sast-and-sca",
+      "description": "Automatic security analysis on file edit and save. Analyze code for vulnerabilities (SOURCE → FLOW → SINK) and reports findings back so Claude can fix them."
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "description": "Harness SAST and SCA: analyze edited files for security issues and report findings back so Claude can fix vulnerabilities",
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/handlers/session-start-handler.js\"",
+            "timeout": 600,
+            "statusMessage": "Harness SAST and SCA: ensuring dependencies are installed..."
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/handlers/claude-code-hook-handler.js\"",
+            "timeout": 600
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/handlers/claude-code-stop-handler.js\""
+          }
+        ]
+      }
+    ]
+  }
+}
