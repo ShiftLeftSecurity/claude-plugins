@@ -3,8 +3,6 @@
   "description": "Automatic security analysis on file edit and save. Analyze code for vulnerabilities (SOURCE → FLOW → SINK) and reports findings back so Claude can fix them.",
   "version": "0.0.1",
   "author": {
-    "name": "Qwiet AI / ShiftLeft"
-  },
-  "repository": "https://github.com/ShiftLeftSecurity/curness",
-  "license": "MIT"
+    "name": "Harness, Inc."
+  }
 }
