@@ -11,6 +11,9 @@ Add this marketplace to Claude Code:
 /reload-plugins
 ```
 
+> [!TIP]
+> Take advantage of new features and fixes by typing `/plugin`, select **Marketplaces**, and then `harness-sast-and-sca-plugins`. Select *Enable auto-update*.
+
 Install the Harness SAST and SCA plugin:
 
 ```
