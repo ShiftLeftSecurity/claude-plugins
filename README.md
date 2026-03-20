@@ -27,4 +27,4 @@ Install the Harness SAST and SCA plugin:
 
 ## Documentation
 
-See the official documentation on the Harness SAST and SCA [documentation website](https://docs.shiftleft.io/sast/secure-vibe-coding-ai-assisted-development).
+See the official documentation on the Harness SAST and SCA [documentation website](https://docs.shiftleft.io/sast/secure-ai-coding-ai-assisted-development).
