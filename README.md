@@ -23,7 +23,7 @@ Install the Harness SAST and SCA plugin:
 
 ## Available Plugins
 
-- `harness-sast-and-sca`: Automatic security analysis on file edit and save. Analyzes code for vulnerabilities (SOURCE -> FLOW -> SINK) and reports findings back so Claude can fix them.
+- `harness-sast-and-sca`: Automatic security analysis on file edit and save. Analyzes code for vulnerabilities (including dataflow analysis!) and reports findings back so Claude can fix them.
 
 ## Documentation
 
