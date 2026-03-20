@@ -21,6 +21,9 @@ Install the Harness SAST and SCA plugin:
 /reload-plugins
 ```
 
+> [!IMPORTANT]
+> Make sure you have the Harness SAST and SCA CLI (`sl`) properly configured. Follow [this guide on the documentation website](https://docs.shiftleft.io/sast/getting-started/setup).
+
 ## Available Plugins
 
 - `harness-sast-and-sca`: Automatic security analysis on file edit and save. Analyzes code for vulnerabilities (including dataflow analysis!) and reports findings back so Claude can fix them.
