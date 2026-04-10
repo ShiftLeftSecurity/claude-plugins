@@ -1,60 +1,94 @@
 ---
-name: scan
-description: Run security analysis on source code files. Use when the user asks to scan, analyze, or check files for security vulnerabilities, or mentions Review, Analyze, Harness SAST and SCA, Qwiet, ShiftLeft, or security scanning.
+name: curness
+description: Run local Harness SAST on source files, or SCA on dependency manifests. Use when the user asks to scan code, check dependencies or CVEs, or mentions Harness SAST and SCA, Curness, security scanning, Review, Analyze, Qwiet, or ShiftLeft.
 ---
 
-# Harness SAST and SCA Security Analysis
+# Harness SAST and SCA (Curness)
 
-Run security analysis on source code files to detect vulnerabilities and security issues.
+Analysis runs **on the user’s machine**: static analysis for source files, and dependency-manifest scanning using ShiftLeft package metadata. The editor extension can also scan on save; these scripts are for **on-demand** runs from the agent.
 
-## Supported Languages
+---
+
+## Where to run the scripts from
+
+Use the directory that matches how the user installed Curness:
+
+| Situation                                       | Folder containing `run-scan.sh`     | Example                                                              |
+| ----------------------------------------------- | ----------------------------------- | -------------------------------------------------------------------- |
+| **Cursor** (skill installed with the extension) | `~/.cursor/skills/curness/`         | `bash "$HOME/.cursor/skills/curness/run-scan.sh" /path/to/File.java` |
+| **Claude Code** with `--plugin-dir`             | `<that plugin folder>/skills/scan/` | `bash "<plugin>/skills/scan/run-scan.sh" /path/to/File.java`         |
+
+For Claude plugins, **`<plugin>`** is the root you pass to **`claude --plugin-dir`** (it contains `.claude-plugin/`, `hooks/`, `skills/`, etc.). Do not assume a path under `~/.claude/plugins/` unless the user said they installed there.
+
+The same folder holds **`run-sca-manifest.sh`** and **`run-sca-manifest.cjs`**; keep using that folder’s paths for SCA so the `.sh` and `.cjs` stay paired.
+
+---
+
+## Source code scan (`run-scan.sh`)
+
+Findings describe data flow as **SOURCE → FLOW → SINK**.
+
+### Supported file types
 
 - Java: `.java`
 - C/C++: `.c`, `.cpp`, `.cc`, `.cxx`, `.h`, `.hpp`
 - JavaScript/TypeScript: `.js`, `.jsx`, `.ts`, `.tsx`
 - Python: `.py`
-- Kotlin: `.kt`, `.kts`
-- Ruby: `.rb`
 - PHP: `.php`
-- Swift: `.swift`
 
-## Usage
+### Before running
 
-When the user asks to scan a file or check for security issues:
+- **Java** available (`PATH` or `JAVA_HOME`)
+- Curness data under **`~/.shiftleft/`** (local analyzer bundle and scripts; the skill wrapper picks the best available launcher on your machine)
 
-1. Verify the file has a supported extension
-2. Check that the file exists
-3. Run the analysis script
-4. Extract JSON results from stdout between markers
-
-## Running the Scan
-
-Run the wrapper script (use the path where the Harness SAST and SCA plugin is installed; common locations below):
-
-**If the plugin is installed via Claude Code plugin manager** (e.g. under `~/.claude/plugins/curness/`):
+### Run
 
 ```bash
-bash "$HOME/.claude/plugins/curness/skills/scan/run-scan.sh" "<file_path>"
+bash "<path-to-run-scan.sh>" "<source_file_path>"
 ```
 
-**If using `claude --plugin-dir /path/to/curness/claude-plugin`**, use that directory:
+### Output
+
+Stdout may include logs. The JSON block is between:
+
+- Start: `===FINDINGS_JSON_START===`
+- End: `===FINDINGS_JSON_END===`
+
+### What to do with the result
+
+1. If the file’s extension is not supported, say so and skip the scan.
+2. Otherwise run the script and parse the JSON between the markers.
+3. Summarize findings (title, severity/score, source, flow, sink).
+
+---
+
+## Dependency manifest scan (`run-sca-manifest.sh`)
+
+Scans a manifest (for example `package.json`, `pom.xml`) for vulnerable dependencies using the same approach as the extension’s manifest flow.
+
+### Before running
+
+- Valid ShiftLeft config at **`~/.shiftleft/config.json`** (**`orgId`** and **`accessToken`**)
+- Dependency-scan tooling installed under **`~/.shiftleft/`** (same layout the extension uses for manifest scans)
+- For **`package.json`**, a lockfile next to it (**`package-lock.json`**, **`yarn.lock`**, or **`pnpm-lock.yaml`**) when required
+
+### Run
 
 ```bash
-bash "/path/to/curness/claude-plugin/skills/scan/run-scan.sh" "<file_path>"
+bash "<path-to-run-sca-manifest.sh>" "<manifest_path>"
 ```
 
-The script uses tools from `$HOME/.shiftleft/` (downloaded on first use by the Harness SAST and SCA extension or when hooks run). If dependencies are missing, prompt the user to run the Harness SAST and SCA install or trigger a file edit so the hook can download it.
+### Output
 
-**Output:** JSON findings are printed between `===FINDINGS_JSON_START===` and `===FINDINGS_JSON_END===`. Extract and parse that substring.
+- JSON between **`===SCA_FINDINGS_JSON_START===`** and **`===SCA_FINDINGS_JSON_END===`**
+- Progress lines on stderr: `[SCA] ...`
 
-## Workflow
+### What to do with the result
 
-1. Identify the file to scan (user request or current file)
-2. Verify file extension is supported
-3. Run the script with the file path
-4. Parse JSON from stdout between the markers
-5. Present findings with title, score, source, flow, sink, and remediation
+1. Run the script on the manifest path the user cares about.
+2. Parse the JSON between the SCA markers (for example dependency vulnerabilities or warnings about a missing lockfile).
+3. Summarize for the user.
 
-## Error Handling
+### If something fails
 
-If the script fails or dependencies are not found, suggest the user install Harness SAST and SCA (e.g. run `install.sh` from the Harness SAST and SCA repo or install the extension) so that `~/.shiftleft/ocular-mini/` and `~/.shiftleft/analyze.sc` exist.
+Misconfigured credentials, missing tooling under `~/.shiftleft/`, or a missing lockfile usually shows up in script output or as warnings inside the JSON. If the script file is not found, the path to the skill folder is wrong—re-check **Where to run the scripts from** above.

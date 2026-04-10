@@ -1,5 +1,5 @@
 #!/bin/bash
-# Curness Scan Wrapper - Ensures Java is available (used by Claude plugin skill)
+# Curness Scan Wrapper - Ensures Java is available
 
 set -e
 
@@ -34,25 +34,35 @@ if ! command -v java >/dev/null 2>&1; then
   exit 1
 fi
 
-# Harness SAST and SCA data lives under ~/.shiftleft (same as extension / sllsp)
+# Harness SAST and SCA data lives under ~/.shiftleft (same as sllsp)
 OCULAR_DATA_DIR="$HOME/.shiftleft"
 
 if [ ! -d "$OCULAR_DATA_DIR" ]; then
   echo "Error: ShiftLeft data directory not found at $OCULAR_DATA_DIR" >&2
-  echo "Please install Harness SAST and SCA (extension or plugin) to download dependencies." >&2
+  echo "Please install and activate the Curness extension to download dependencies." >&2
   exit 1
 fi
 
-# Set paths for security analysis engine
-OCULAR_SCRIPT="$OCULAR_DATA_DIR/ocular-mini/ocular.sh"
+# Prefer native `analyze` launcher when present; else legacy shell + optional analyze.sc
+OCULAR_MINI_DIR="$OCULAR_DATA_DIR/ocular-mini"
+NATIVE_ANALYZE="$OCULAR_MINI_DIR/analyze/bin/analyze"
+OCULAR_SCRIPT="$OCULAR_MINI_DIR/ocular.sh"
 ANALYZE_SCRIPT="$OCULAR_DATA_DIR/analyze.sc"
 
-# Verify dependencies exist
+if [ -f "$NATIVE_ANALYZE" ] || [ -x "$NATIVE_ANALYZE" ]; then
+  "$NATIVE_ANALYZE" "$FILE_PATH" 2>&1
+  exit $?
+fi
+
+# Verify legacy launcher exists
 if [ ! -f "$OCULAR_SCRIPT" ]; then
-  echo "Error: Security analysis engine not found at $OCULAR_SCRIPT" >&2
-  echo "Please install Harness SAST and SCA and trigger an analysis or file edit to download dependencies." >&2
+  echo "Error: Security analysis engine not found (expected $NATIVE_ANALYZE or $OCULAR_SCRIPT)" >&2
+  echo "Please activate the Curness extension to download dependencies." >&2
   exit 1
 fi
 
-# Run security analysis (redirect stderr to stdout)
-sh "$OCULAR_SCRIPT" --script "$ANALYZE_SCRIPT" --param fileName="$FILE_PATH" 2>&1
+if [ -f "$ANALYZE_SCRIPT" ]; then
+  sh "$OCULAR_SCRIPT" --script "$ANALYZE_SCRIPT" --param fileName="$FILE_PATH" 2>&1
+else
+  sh "$OCULAR_SCRIPT" --param fileName="$FILE_PATH" 2>&1
+fi

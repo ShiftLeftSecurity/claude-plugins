@@ -1,37 +1,38 @@
 ---
 name: update
-description: Check for dependency updates or install dependencies if missing. Use when the user asks to update Harness SAST and SCA, install dependencies, or check for updates.
+description: Install or update Harness SAST and SCA engine dependencies (analyzers and dependency tooling). Use when the user asks to update the security tools, install missing dependencies, or check for updates.
 ---
 
-# Harness SAST and SCA Update / Install
+# Update Harness SAST and SCA dependencies
 
-Install dependencies (if missing) or check for and apply updates.
+Use this when the user wants to **install** analysis dependencies (first-time, ~400MB) or **update** them to the latest version.
 
-## When to use
+## What happens
 
-- User asks to "update Harness SAST and SCA", "update dependencies", "check for updates", or "install dependencies"
-- User wants to ensure they have the latest security analysis engine
+- Nothing installed yet: downloads and installs dependencies, then reports success.
+- Installed but an update exists: installs the update and reports success.
+- Already up to date: reports the current version.
 
-## What to do
+## Claude Code plugin
 
-Run the update handler script. It will:
-
-- If dependencies are not installed: download and install them (~400MB), then report success.
-- If dependencies are installed and an update is available: download and install the new version, then report success.
-- If dependencies are already up to date: report that and the current version.
-
-## Command
-
-Run this command and show the user the output:
+If the user is using the **Harness SAST and SCA** plugin with Claude Code, run the bundled update script and show the output:
 
 ```bash
 node "${CLAUDE_PLUGIN_ROOT}/handlers/update-handler.js"
 ```
 
-If `CLAUDE_PLUGIN_ROOT` is not set (e.g. in some environments), use the typical plugin path:
+If **`CLAUDE_PLUGIN_ROOT`** is not set, use the plugin directory the user actually loaded with **`claude --plugin-dir`**, for example:
 
 ```bash
-node "$HOME/.claude/plugins/curness/handlers/update-handler.js"
+node "/path/to/plugin/handlers/update-handler.js"
 ```
 
-Report the script output to the user. If the command fails, mention that they may need to start a new session so the SessionStart hook can install dependencies, or run the Harness SAST and SCA repo `install.sh`.
+Some installs use a default under **`$HOME/.claude/plugins/`**; only use that if it matches how the user installed the plugin.
+
+## Cursor / VS Code
+
+If the user is **not** using the Claude plugin (only Cursor or VS Code), they typically install or update via the **Curness / Harness SAST** extension or the project **`install.sh`**. Point them there instead of running **`update-handler.js`**, which ships with the Claude plugin.
+
+## If the command fails
+
+Suggest starting a new session so install hooks can run, or running **`install.sh`** from the Curness / Harness SAST project if they are setting up from source.
