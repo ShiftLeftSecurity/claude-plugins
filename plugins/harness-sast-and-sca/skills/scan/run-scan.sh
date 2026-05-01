@@ -43,26 +43,11 @@ if [ ! -d "$OCULAR_DATA_DIR" ]; then
   exit 1
 fi
 
-# Prefer native `analyze` launcher when present; else legacy shell + optional analyze.sc
-OCULAR_MINI_DIR="$OCULAR_DATA_DIR/ocular-mini"
-NATIVE_ANALYZE="$OCULAR_MINI_DIR/analyze/bin/analyze"
-OCULAR_SCRIPT="$OCULAR_MINI_DIR/ocular.sh"
-ANALYZE_SCRIPT="$OCULAR_DATA_DIR/analyze.sc"
-
-if [ -f "$NATIVE_ANALYZE" ] || [ -x "$NATIVE_ANALYZE" ]; then
-  "$NATIVE_ANALYZE" "$FILE_PATH" 2>&1
-  exit $?
-fi
-
-# Verify legacy launcher exists
-if [ ! -f "$OCULAR_SCRIPT" ]; then
-  echo "Error: Security analysis engine not found (expected $NATIVE_ANALYZE or $OCULAR_SCRIPT)" >&2
-  echo "Please activate the Curness extension to download dependencies." >&2
+# Run Ocular via bundled Node CLI (matches hook pipeline + Harness SAST manual telemetry).
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SKILL_NODE="$SCRIPT_DIR/skill-ocular-scan.cjs"
+if [ ! -f "$SKILL_NODE" ]; then
+  echo "Error: skill-ocular-scan.cjs not found in $SCRIPT_DIR (rebuild curness-core and sync skills)." >&2
   exit 1
 fi
-
-if [ -f "$ANALYZE_SCRIPT" ]; then
-  sh "$OCULAR_SCRIPT" --script "$ANALYZE_SCRIPT" --param fileName="$FILE_PATH" 2>&1
-else
-  sh "$OCULAR_SCRIPT" --param fileName="$FILE_PATH" 2>&1
-fi
+exec node "$SKILL_NODE" "$FILE_PATH"
