@@ -4,10 +4,18 @@ Harness SAST and SCA plugins for Claude Code.
 
 ## Quick Start
 
+> [!IMPORTANT]
+> Make sure you have the Harness SAST and SCA CLI (`sl`) properly configured. Follow [this guide on the documentation website](https://docs.shiftleft.io/sast/getting-started/setup).
+
 Add this marketplace to Claude Code:
 
 ```
 /plugin marketplace add https://github.com/ShiftLeftSecurity/claude-plugins
+```
+
+Reload for changes to take effect immediately:
+
+```
 /reload-plugins
 ```
 
@@ -18,11 +26,13 @@ Install the Harness SAST and SCA plugin:
 
 ```
 /plugin install harness-sast-and-sca
-/reload-plugins
 ```
 
-> [!IMPORTANT]
-> Make sure you have the Harness SAST and SCA CLI (`sl`) properly configured. Follow [this guide on the documentation website](https://docs.shiftleft.io/sast/getting-started/setup).
+Reload for changes to take effect immediately:
+
+```
+/reload-plugins
+```
 
 ## Available Plugins
 
