@@ -1,0 +1,37 @@
+IMPORT io.shiftleft/default
+IMPORT io.shiftleft/defaultdict
+
+## Add new audited tag for the warn methods
+
+IO audited = METHOD -f "org.slf4j.Logger.warn:void(java.lang.String)" { PAR -i 1 "SINK" }
+IO audited = METHOD -f "org.slf4j.Logger.warn:void(java.lang.String,java.lang.Object)" { PAR -i 1 "SINK", PAR -i 2 "SINK" }
+IO audited = METHOD -f "org.slf4j.Logger.warn:void(java.lang.String,java.lang.Object,java.lang.Object)" { PAR -i 1 "SINK", PAR -i 2 "SINK", PAR -i 3 "SINK" }
+
+## Create a conclusion that checks for the flow of private data without the audit method
+
+CONCLUSION unaudited-data-use = FLOW DATA (payment-data OR location OR account-info OR pii OR medical) -> IO (NOT audited)
+
+WHEN CONCLUSION unaudited-data-use => EMIT {
+  title: "Unaudited: Customer data is used {{via `$paramname`}} without audit {{in `$methodname`}}",
+  description: "Customer data is used by the application without an audit log to identify the user accessing the data. This is required as per compliance standards.
+
+## Internal Help
+
+As per SOC2 standards, all uses of private data should be logged for audit purposes. The audit log entry should contain the user's ID accessing the customer information and other parameters. Refer to this [internal document](https://example.com) to learn more.
+
+## Countermeasures
+
+This vulnerability can be prevented by using the approved audit functions in your application.
+
+## Additional information
+
+**[CWE-223](https://cwe.mitre.org/data/definitions/223.html)**
+
+**[OWASP-A10](https://owasp.org/www-project-top-ten/2017/A10_2017-Insufficient_Logging%2526Monitoring)**",
+  category: "a10-insufficient-logging",
+  score: "8.0",
+  vulnerability_description: "Insufficient Logging",
+  owasp_link: "https://owasp.org/www-project-top-ten/2017/A10_2017-Insufficient_Logging%2526Monitoring",
+  link: "https://owasp.org/www-project-top-ten/2017/A10_2017-Insufficient_Logging%2526Monitoring",
+  cwe_link: "https://cwe.mitre.org/data/definitions/223.html"
+}

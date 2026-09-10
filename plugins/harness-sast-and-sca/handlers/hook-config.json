@@ -1,0 +1,6 @@
+{
+  "followupFixesEnabled": true,
+  "extensionName": "Harness SAST and SCA",
+  "loopLimit": 5,
+  "telemetryPluginId": "curness-claude-plugin"
+}

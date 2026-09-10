@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "slmcp": {
+      "command": "node",
+      "args": ["${CLAUDE_PLUGIN_ROOT}/slmcp/slmcp.cjs"]
+    }
+  }
+}

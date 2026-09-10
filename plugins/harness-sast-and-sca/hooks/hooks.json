@@ -13,9 +13,20 @@
         ]
       }
     ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/handlers/session-end-handler.js\"",
+            "timeout": 15
+          }
+        ]
+      }
+    ],
     "PreToolUse": [
       {
-        "matcher": "Bash",
+        "matcher": "^(Bash|bash|exec|shell|run_in_terminal|run_terminal_cmd|run_terminal_command|terminal|powershell)$",
         "hooks": [
           {
             "type": "command",
@@ -27,7 +38,7 @@
     ],
     "PostToolUse": [
       {
-        "matcher": "Edit|Write",
+        "matcher": "^(edit|write|Edit|Write|apply_patch|create|create_file|str_replace_editor)$",
         "hooks": [
           {
             "type": "command",
